@@ -21,9 +21,8 @@ income_data = pd.read_stata("/Users/heinzemax/Documents/GitHub/inequality_sse/as
 
 # Filtering the data so that only household heads are contained.
 # Note that filtering by relationhead==10 is kind of a "best guess" after
-# consulting PSID codebooks available online, since no proper documentation
-# was provided with the dataset and the variable in question is not labeled.
-# Source for the "best guess": Page 4 of the document available at
+# consulting PSID codebooks available online, since the variable in question 
+# is not labeled. Source for the "best guess": Page 4 of the document available at
 # https://psidonline.isr.umich.edu/documents/psid/codebook/MX19REL_codebook.pdf
 income_data = income_data.query("relationhead == 10")
 
@@ -41,11 +40,9 @@ income_data = income_data.query("(mls=='married' & sp_in_fu=='Spouse/Partner in 
 # Filtering out all household heads who worked zero hours
 income_data = income_data.query("head_hrs > 0")
 
-# Replacing all zero values with 0.1 in order to avoid infinite logs
-income_data['head_li'] = income_data['head_li'].replace(0, 0.1)
-
-# Creating a logged hourly earnings variable from yearly income and yearly hrs
-income_data['log_hr_earnings'] = np.log(income_data['head_li'] / income_data['head_hrs'])
+# Creating a logged hourly earnings variable from yearly income and yearly hrs, 
+# adding 1 to avoid taking the log of 0
+income_data['log_hr_earnings'] = np.log((income_data['head_li'] / income_data['head_hrs']) + 1)
 
 # Computing averages by age and education
 average_wages = income_data.groupby(['age', 'edu'])['log_hr_earnings'].mean().reset_index()
